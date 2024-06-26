@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { currentMeta } from "meta";
 
 // 동적으로 pages 디렉토리의 모든 파일을 가져온다.
 const pageModules = import.meta.glob('@/pages/**/*.vue');
