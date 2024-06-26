@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useMeta } from "meta";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import config from "@/features/ckeditor/config.js";
+import config from "@/features/ckeditor/model/config.js";
 
 useMeta({
   title: "editor : ckeditor",
