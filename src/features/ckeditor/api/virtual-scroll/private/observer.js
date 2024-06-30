@@ -63,6 +63,8 @@ const $observer = {
 	disconnect() {
 		this.io.disconnect();
 		this.mo.disconnect();
+		this.io = null;
+		this.mo = null;
 	},
 }
 
