@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useMeta } from "meta";
 import ClassicEditor from "@/features/ckeditor/model/build.js";
 import $plugin from "@/features/ckeditor/api/virtual-scroll/index.js"
+import "@/features/ckeditor/ui/global.scss";
 
 useMeta({
   title: "editor : ckeditor - Virtual Scrolling",
@@ -68,35 +69,5 @@ async function onChange(event) {
   width: 100vw;
   height: 100vh;
   gap: 10px;
-}
-
-.ck-container {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-
-  border: 1px solid #ccc;
-  border-radius: 20px;
-  padding: 10px;
-  background-color: whitesmoke;
-}
-
-.ck-editor {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  &__main {
-    flex: 1 1 auto;
-    .ck-content,
-    .ck-source-editing-area {
-      height: 100%;
-      min-height: calc(100vh - 375px);
-      max-height: calc(100vh - 375px);
-
-      textarea {
-        overflow: auto !important;
-      }
-    }
-  }
 }
 </style>
