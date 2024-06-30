@@ -38,7 +38,7 @@ const $buffer = {
 		if (isUnsafeElement) return;
 
 		const type = isIntersecting ? this.types[0] : this.types[1];
-		const index = this.getIndex(target);
+		const index = getIndex(target);
 		const height = isIntersecting ? 0 : boundingClientRect.height;
 		this.setBuffer(type, index, height);
 	},
@@ -76,19 +76,19 @@ const $buffer = {
 		if (isSame) return;
 		$chunk.setData(index, text);
 	},
-
-	/**
-	 * 노드 순회하며 인덱스 반환
-	 * @param {HTMLParagraphElement} element
-	 * @returns {number}
-	 */
-	getIndex(element) {
-		let index = 0;
-		while ((element = element.previousElementSibling) != null) {
-			index++;
-		}
-		return index;
-	},
 }
 
 export default $buffer;
+
+/**
+ * 노드 순회하며 인덱스 반환
+ * @param {HTMLParagraphElement} element
+ * @returns {number}
+ */
+function getIndex(element) {
+	let index = 0;
+	while ((element = element.previousElementSibling) != null) {
+		index++;
+	}
+	return index;
+}
