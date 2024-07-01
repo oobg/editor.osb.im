@@ -37,12 +37,9 @@ async function onChange(event) {
   if (file.type !== "text/html") return;
 
   const reader = new FileReader();
-  reader.onload = (e) => {
-    const content = e.target.result;
-    console.log(content);
-    setData(content);
-  };
+  reader.onload = (e) => setData(e.target.result);
   reader.readAsText(file);
+  event.target.value = "";
 }
 </script>
 
