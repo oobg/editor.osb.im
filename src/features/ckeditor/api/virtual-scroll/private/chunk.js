@@ -18,7 +18,7 @@ const $chunk = {
 	 */
 	parseHtml(html) {
 		const body = this.getBody(html);
-		const elements = Array.from(body.childNodes);
+		const elements = Array.from(body.childNodes).filter(node => node.nodeType === 1);
 
 		if (elements.length === 0) return [""];
 
