@@ -13,23 +13,11 @@ useMeta({
 const editor = ref(ClassicEditor);
 const fileInput = ref(null);
 
-function ready(instance) {
-  $plugin.init(instance);
-}
+const ready = (instance) => $plugin.init(instance);
+const getData = async () => alert(await $plugin.getData());
+const setData = (html) => $plugin.setData(html);
 
-async function getData() {
-  alert(await $plugin.getData());
-}
-
-function setData(html) {
-  $plugin.setData(html);
-}
-
-async function onUpload() {
-  if (fileInput.value) {
-    fileInput.value.click();
-  }
-}
+const onUpload = async () => fileInput.value.click();
 
 async function onChange(event) {
   const files = Array.from(event.target.files);
