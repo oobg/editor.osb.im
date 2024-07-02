@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useMeta } from "meta";
 import ClassicEditor from "@/features/ckeditor/model/build.js";
 import $plugin from "@/features/ckeditor/api/virtual-scroll/index.js"
-import "@/features/ckeditor/ui/global.scss";
+import "@/features/ckeditor/ui/base.scss";
 
 useMeta({
   title: "editor : ckeditor - Virtual Scrolling",

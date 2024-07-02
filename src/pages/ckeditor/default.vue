@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import { useMeta } from "meta";
 import ClassicEditor from "@/features/ckeditor/model/build.js";
-import "@/features/ckeditor/ui/global.scss";
+import "@/features/ckeditor/ui/base.scss";
 
 useMeta({
   title: "editor : ckeditor - default",
