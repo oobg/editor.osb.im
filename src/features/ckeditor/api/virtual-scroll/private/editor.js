@@ -88,12 +88,25 @@ const $editor = {
 	// 문단 수 카운트 및 감시
 	setParagraphWatch() {
 		this.lastParagraphCount = this.getEditorDom().childElementCount;
-		this.editor.model.document.on("change:data", watcher);
+		this.editor.model.document.on("change:data", () => this.paragraphWatcher);
 	},
 
 	removeParagraphWatch() {
-		this.editor.model.document.off("change:data", watcher);
+		this.editor.model.document.off("change:data", () => this.paragraphWatcher);
 	},
+
+	paragraphWatcher(eventInfo, batch) {
+		const count = this.root.childCount;
+		if (this.isReplacing || this.lastParagraphCount === count) return;
+
+		// 문단 수 동기화
+		this.lastParagraphCount = count;
+
+		// 문단 수가 변경되었을 때 처리
+		const changes = eventInfo.source.differ.getChanges();
+		const htmlText = $editor.getHtmlText();
+		changes.forEach(change => handleModelChange(change, htmlText) );
+	}
 }
 
 export default $editor;
@@ -129,18 +142,6 @@ async function waitForNonDummyElement(element, childIndex, startTime, timeout) {
 	}
 }
 
-function watcher(eventInfo, batch) {
-	if ($editor.isReplacing || $editor.lastParagraphCount === $editor.root.childCount) return;
-
-	// 문단 수 동기화
-	$editor.lastParagraphCount = $editor.root.childCount;
-
-	// 문단 수가 변경되었을 때 처리
-	const changes = eventInfo.source.differ.getChanges();
-	const htmlText = $editor.getHtmlText();
-	changes.forEach(change => handleModelChange(change, htmlText) );
-}
-
 function handleModelChange(change, htmlText) {
 	const index = change.position.path[0];
 	switch (change.type) {
@@ -152,5 +153,6 @@ function handleModelChange(change, htmlText) {
 			$chunk.removeData(index);
 			break;
 		default:
+			break;
 	}
 }
