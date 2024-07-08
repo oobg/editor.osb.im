@@ -1,5 +1,6 @@
 import $editor from "./editor.js";
 import $buffer from "./buffer.js";
+import router from "@/app/plugins/router.js"
 
 const $observer = {
 	options: {
@@ -16,6 +17,7 @@ const $observer = {
 		this.io = new IntersectionObserver(this.intersectionHandler.bind(this), this.options);
 		this.mo = new MutationObserver(this.mutationHandler.bind(this));
 		this.mo.observe(this.root, { childList: true });
+		this.autoDisconnect();
 	},
 
 	/**
@@ -61,10 +63,17 @@ const $observer = {
 	},
 
 	disconnect() {
-		this.io.disconnect();
-		this.mo.disconnect();
+		this.io?.disconnect();
+		this.mo?.disconnect();
 		this.io = null;
 		this.mo = null;
+	},
+
+	autoDisconnect() {
+		router.beforeEach((to, from, next) => {
+			this.disconnect();
+			next();
+		});
 	},
 }
 
