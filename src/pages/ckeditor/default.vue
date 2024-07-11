@@ -11,11 +11,12 @@ useMeta({
 
 const editor = ref(ClassicEditor);
 const inctance = ref(null);
+const content = ref(null);
 const fileInput = ref(null);
 
 const ready = (edit) => inctance.value = edit;
-const getData = async () => alert(await inctance.value.getData());
-const setData = (html) => inctance.value.setData(html);
+const getData = async () => alert(content.value);
+const setData = (html) => content.value = html;
 
 const onUpload = async () => fileInput.value.click();
 
@@ -41,7 +42,7 @@ async function onChange(event) {
       <v-file-input hide-input prepend-icon="" ref="fileInput" @change="onChange" />
     </div>
     <div class="ck-container">
-      <ckeditor :editor @ready="ready" />
+      <ckeditor v-model="content" :editor @ready="ready" />
     </div>
   </v-container>
 </template>
