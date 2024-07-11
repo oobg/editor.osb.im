@@ -10,6 +10,11 @@ const $plugin = {
 		await initialize(html);
 	},
 
+	destroy() {
+		$editor.removeParagraphWatch();
+		$observer.disconnect();
+	},
+
 	async getData() {
 		const html = await $editor.getHtmlText();
 		await $chunk.updateData(html);
@@ -17,9 +22,7 @@ const $plugin = {
 	},
 
 	async setData(html = "") {
-		$editor.removeParagraphWatch();
-		$observer.disconnect();
-
+		this.destroy();
 		await initialize(html);
 	},
 }

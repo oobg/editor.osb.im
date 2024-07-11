@@ -14,6 +14,7 @@ const editor = ref(ClassicEditor);
 const fileInput = ref(null);
 
 const ready = (instance) => $plugin.init(instance);
+const destroy = () => $plugin.destroy();
 const getData = async () => alert(await $plugin.getData());
 const setData = (html) => $plugin.setData(html);
 
@@ -41,7 +42,12 @@ async function onChange(event) {
       <v-file-input hide-input prepend-icon="" ref="fileInput" @change="onChange" />
     </div>
     <div class="ck-container">
-      <ckeditor :editor @ready="ready" :disable-two-way-data-binding="true" />
+      <ckeditor
+        :editor
+        :disable-two-way-data-binding="true"
+        @ready="ready"
+        @destroy="destroy"
+      />
     </div>
   </v-container>
 </template>

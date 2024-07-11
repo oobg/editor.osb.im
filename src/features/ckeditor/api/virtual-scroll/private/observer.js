@@ -1,6 +1,5 @@
 import $editor from "./editor.js";
 import $buffer from "./buffer.js";
-import router from "@/app/plugins/router.js"
 
 const $observer = {
 	options: {
@@ -10,7 +9,6 @@ const $observer = {
 	},
 	io: null,
 	mo: null,
-	rmo: null,
 
 	async init() {
 		// Intersection Observer 초기화
@@ -19,16 +17,9 @@ const $observer = {
 		this.options.rootMargin = "1000% 0px";
 		this.io = new IntersectionObserver(this.intersectionHandler.bind(this), this.options);
 
-		// CKEditor 자식 노드 감시
+		// Mutation Observer 초기화
 		this.mo = new MutationObserver(this.mutationHandler.bind(this));
 		this.mo.observe(this.root, { childList: true });
-
-		// CKEditor root element 감시
-		this.rmo = new MutationObserver(this.rootMutationObserver.bind(this));
-		this.rmo.observe(this.root.parentNode, { childList: true });
-
-		// 라우터 변경 시 옵저버 해제
-		this.autoDisconnectOnRouteChange();
 	},
 
 	change(isAccessibility) {
@@ -66,14 +57,6 @@ const $observer = {
 		})
 	},
 
-	rootMutationObserver(mutations) {
-		mutations.removedNodes.forEach(node => {
-			if (node === this.root) {
-				this.disconnect();
-			}
-		});
-	},
-
 	/**
 	 * 노드 목록을 순회하며 콜백 함수 실행
 	 * @param {NodeList} nodes
@@ -92,18 +75,11 @@ const $observer = {
 	},
 
 	disconnect() {
-		const observerList = ["io", "mo", "rmo"];
+		const observerList = ["io", "mo"];
 		observerList.forEach(observer => {
 			this[observer]?.takeRecords();
 			this[observer]?.disconnect();
 			this[observer] = null;
-		});
-	},
-
-	autoDisconnectOnRouteChange() {
-		router.beforeEach((to, from, next) => {
-			this.disconnect();
-			next();
 		});
 	},
 }
