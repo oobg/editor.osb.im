@@ -10,11 +10,11 @@ useMeta({
 });
 
 const editor = ref(ClassicEditor);
-const inctance = ref(null);
+const instance = ref(null);
 const content = ref(null);
 const fileInput = ref(null);
 
-const ready = (edit) => inctance.value = edit;
+const ready = (edit) => instance.value = edit;
 const getData = async () => alert(content.value);
 const setData = (html) => content.value = html;
 
