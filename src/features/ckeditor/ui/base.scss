@@ -15,6 +15,9 @@
     flex-direction: column;
     &__main {
         flex: 1 1 auto;
+        [data-content-dummy] {
+            visibility: hidden;
+        }
         .ck-content,
         .ck-source-editing-area {
             height: 100%;

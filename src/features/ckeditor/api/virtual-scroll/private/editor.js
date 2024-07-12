@@ -80,11 +80,6 @@ const $editor = {
 		return body?.children[index]?.outerHTML || "";
 	},
 
-	getClassList(modelElement) {
-		const viewElement = this.editor.editing.mapper.toViewElement(modelElement);
-		return viewElement?.getAttribute("class");
-	},
-
 	// 문단 수 카운트 및 감시
 	setParagraphWatch() {
 		this.lastParagraphCount = this.getEditorDom().childElementCount;
@@ -134,8 +129,7 @@ async function waitForNonDummyElement(element, childIndex, startTime, timeout) {
 
 		// Check dummy element
 		const parent = element.getChild(childIndex[0]);
-		const classList = $editor.getClassList(parent);
-		isDummy = classList ? classList.includes("content-dummy") : false;
+		isDummy = parent.hasAttribute("data-content-dummy");
 
 		// Wait for 50ms
 		if (isDummy) await sleep(50);

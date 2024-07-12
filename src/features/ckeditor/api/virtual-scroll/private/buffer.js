@@ -31,7 +31,7 @@ const $buffer = {
 	entryIterator(entry) {
 		const { isIntersecting, target, boundingClientRect } = entry;
 
-		const isDummy = target.classList.contains("content-dummy");
+		const isDummy = target.hasAttribute("data-content-dummy");
 		if (isIntersecting !== isDummy) return;
 
 		const isUnsafeElement = target.hasAttribute("data-ck-unsafe-element");
@@ -68,7 +68,7 @@ const $buffer = {
 		const element = $editor.getElement(index, data);
 		const text = element?.outerHTML;
 		if (!text) return;
-		const isDummy = text.includes("content-dummy");
+		const isDummy = text.includes("data-content-dummy");
 		if (!isDummy) return;
 		const isUnsafe = text.includes("data-ck-unsafe-element");
 		if (isUnsafe) return;

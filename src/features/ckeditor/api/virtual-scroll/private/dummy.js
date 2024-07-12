@@ -5,7 +5,7 @@ const $dummy = {
 	batchSize: 100, // 한 번에 처리할 요소의 수
 	chunkSize: 10,  // 최초 표시할 청크 데이터의 수
 	buffer: [],
-	dummyHTML: `<p class="content-dummy" style="height: ; visibility: hidden;"></p>`,
+	dummyHTML: `<p data-content-dummy style="height: ;"></p>`,
 
 	/**
 	 * 전체 페이지 데이터를 초기화하고, 청크와 더미 데이터를 추가

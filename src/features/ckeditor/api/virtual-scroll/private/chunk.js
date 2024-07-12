@@ -73,7 +73,7 @@ const $chunk = {
 		this.data.length = children.length;
 
 		children.forEach((child, index) => {
-			const isDummy = child.includes("content-dummy");
+			const isDummy = child.includes("data-content-dummy");
 			if (!isDummy) this.setData(index, child);
 		});
 	},
