@@ -3,6 +3,7 @@ import $chunk from './chunk.js';
 const $editor = {
 	init(editor) {
 		this.editor = editor;
+		this.engine = this.editor.editing;
 		this.root = this.editor.model.document.getRoot();
 
 		this.isReplacing = false;
@@ -51,8 +52,8 @@ const $editor = {
 	 * @returns {HTMLElement}
 	 */
 	findDomElement(modelElement) {
-		const viewElement = this.editor.editing.mapper.toViewElement(modelElement);
-		return this.editor.editing.view.domConverter.mapViewToDom(viewElement);
+		const viewElement = this.engine.mapper.toViewElement(modelElement);
+		return this.engine.view.domConverter.mapViewToDom(viewElement);
 	},
 
 	getContentAtIndex(index) {
@@ -87,10 +88,6 @@ const $editor = {
 		getRoot() {
 			return $editor.findDomElement($editor.model.getRoot());
 		},
-
-		getChildCount() {
-			return this.getRoot().childElementCount;
-		},
 	},
 
 	model: {
@@ -101,39 +98,42 @@ const $editor = {
 		getChild(index) {
 			return this.getRoot().getChild(index);
 		},
+
+		getChildCount() {
+			return this.getRoot().childCount;
+		},
 	},
 
 	// 문단 수 카운트 및 감시
 	setParagraphWatch() {
-		this.lastParagraphCount = this.document.getChildCount();
-		this.editor.model.document.on("change:data", () => this.paragraphWatcher);
+		this.lastParagraphCount = this.model.getChildCount();
+		this.editor.model.document.on("change:data", () => paragraphWatcher);
 	},
 
 	removeParagraphWatch() {
-		this.editor.model.document.off("change:data", () => this.paragraphWatcher);
+		this.editor.model.document.off("change:data", () => paragraphWatcher);
 	},
-
-	paragraphWatcher(eventInfo, batch) {
-		const count = this.root.childCount;
-		if (this.isReplacing || this.lastParagraphCount === count) return;
-
-		// 문단 수 동기화
-		this.lastParagraphCount = count;
-
-		// 문단 수가 변경되었을 때 처리
-		const changes = eventInfo.source.differ.getChanges();
-		changes.forEach(change => handleModelChange(change));
-	}
 }
 
 export default $editor;
 
-function handleModelChange(change, htmlText) {
+function paragraphWatcher(eventInfo, batch) {
+	const count = $editor.model.getChildCount();
+	if ($editor.isReplacing || $editor.lastParagraphCount === count) return;
+
+	// 문단 수 동기화
+	$editor.lastParagraphCount = count;
+
+	// 문단 수가 변경되었을 때 처리
+	const changes = eventInfo.source.differ.getChanges();
+	changes.forEach(change => onChange(change));
+}
+
+function onChange(change) {
 	const index = change.position.path[0];
 	switch (change.type) {
 		case 'insert':
-			const data = $editor.getContentAtIndex(index);
-			$chunk.insertData(index, data);
+			$chunk.insertData(index, $editor.getContentAtIndex(index));
 			break;
 		case 'remove':
 			$chunk.removeData(index);
