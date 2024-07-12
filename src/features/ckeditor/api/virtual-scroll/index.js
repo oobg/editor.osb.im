@@ -16,7 +16,7 @@ const $plugin = {
 	},
 
 	async getData() {
-		const html = await $editor.getHtmlText();
+		const html = await $editor.getData();
 		await $chunk.updateData(html);
 		return $chunk.getText();
 	},

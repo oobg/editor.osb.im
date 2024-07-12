@@ -55,34 +55,57 @@ const $editor = {
 		return this.editor.editing.view.domConverter.mapViewToDom(viewElement);
 	},
 
-	getHtmlText() {
-		return this.editor.getData();
-	},
+	getContentAtIndex(index) {
+		const modelElement = this.model.getChild(index);
+		if (!modelElement) return "";
+		const viewFragment = this.editor.data.toView(modelElement);
+		let html = this.editor.data.processor.toData(viewFragment);
 
-	getElement(index, body) {
-		return body?.children[index] || null;
-	},
+		let tagName = modelElement.name;
+		if (tagName.startsWith('heading')) {
+			tagName = `h${tagName.slice(-1)}`;
+		} else if (tagName === 'paragraph') {
+			tagName = 'p';
+		}
 
-	getRootChild(index) {
-		return this.root.getChild(index);
-	},
+		const attributes = Array.from(modelElement.getAttributeKeys())
+			.map(attrKey => `${attrKey}="${modelElement.getAttribute(attrKey)}"`)
+			.join(' ');
 
-	getEditorDom() {
-		return this.findDomElement(this.root);
+		return `<${tagName}${attributes && ` ${attributes}`}>${html}</${tagName}>`;
 	},
 
 	setData(html) {
 		this.editor.setData(html);
 	},
 
-	getData(index, htmlText = null) {
-		const body = $chunk.getBody(htmlText);
-		return body?.children[index]?.outerHTML || "";
+	getData() {
+		return this.editor.getData();
+	},
+
+	document: {
+		getRoot() {
+			return $editor.findDomElement($editor.model.getRoot());
+		},
+
+		getChildCount() {
+			return this.getRoot().childElementCount;
+		},
+	},
+
+	model: {
+		getRoot() {
+			return $editor.root;
+		},
+
+		getChild(index) {
+			return this.getRoot().getChild(index);
+		},
 	},
 
 	// 문단 수 카운트 및 감시
 	setParagraphWatch() {
-		this.lastParagraphCount = this.getEditorDom().childElementCount;
+		this.lastParagraphCount = this.document.getChildCount();
 		this.editor.model.document.on("change:data", () => this.paragraphWatcher);
 	},
 
@@ -99,48 +122,17 @@ const $editor = {
 
 		// 문단 수가 변경되었을 때 처리
 		const changes = eventInfo.source.differ.getChanges();
-		const htmlText = $editor.getHtmlText();
-		changes.forEach(change => handleModelChange(change, htmlText) );
+		changes.forEach(change => handleModelChange(change));
 	}
 }
 
 export default $editor;
 
-function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-/**
- * dummy element를 기다리는 함수
- * @param {Element} element - 현재 element
- * @param {number[]} childIndex - 자손 element의 index 배열
- * @param {number} startTime - 탐색 시작 시간
- * @param {number} timeout - 탐색 제한 시간
- * @returns {Promise<void>} - dummy element가 아니게 될 때까지 대기
- */
-async function waitForNonDummyElement(element, childIndex, startTime, timeout) {
-	let isDummy = true;
-
-	while (isDummy) {
-		// Timeout check
-		if (Date.now() - startTime >= timeout) {
-			throw new Error("Operation timed out");
-		}
-
-		// Check dummy element
-		const parent = element.getChild(childIndex[0]);
-		isDummy = parent.hasAttribute("data-content-dummy");
-
-		// Wait for 50ms
-		if (isDummy) await sleep(50);
-	}
-}
-
 function handleModelChange(change, htmlText) {
 	const index = change.position.path[0];
 	switch (change.type) {
 		case 'insert':
-			const data = $editor.getData(index, htmlText);
+			const data = $editor.getContentAtIndex(index);
 			$chunk.insertData(index, data);
 			break;
 		case 'remove':

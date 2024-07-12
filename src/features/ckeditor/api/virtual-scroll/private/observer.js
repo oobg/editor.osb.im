@@ -4,32 +4,21 @@ import $buffer from "./buffer.js";
 const $observer = {
 	options: {
 		root: null,
-		rootMargin: "0px",
+		rootMargin: "1000% 0px",
 		threshold: 0,
 	},
 	io: null,
 	mo: null,
 
-	async init() {
+	init() {
 		// Intersection Observer 초기화
-		this.root = await $editor.getEditorDom();
-		this.options.root = this.root;
-		this.options.rootMargin = "1000% 0px";
+		const root = $editor.document.getRoot();
+		this.options.root = root;
 		this.io = new IntersectionObserver(this.intersectionHandler.bind(this), this.options);
 
 		// Mutation Observer 초기화
 		this.mo = new MutationObserver(this.mutationHandler.bind(this));
-		this.mo.observe(this.root, { childList: true });
-	},
-
-	change(isAccessibility) {
-		this.io.takeRecords();
-		this.io.disconnect();
-		this.options.rootMargin = isAccessibility ? "0px" : "1000% 0px";
-
-		this.io = new IntersectionObserver(this.intersectionHandler.bind(this), this.options);
-		const elements = Array.from(this.root.children);
-		elements.forEach(element => this.observe(element));
+		this.mo.observe(root, { childList: true });
 	},
 
 	/**

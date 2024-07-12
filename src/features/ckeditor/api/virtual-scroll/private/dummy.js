@@ -44,7 +44,7 @@ const $dummy = {
 
 	// 가장 첫 번째 공백 요소 제거
 	removeFirstElement() {
-		const firstElement = $editor.getRootChild(0);
+		const firstElement = $editor.model.getChild(0);
 		if (firstElement) {
 			$editor.removeModelElement(firstElement);
 		}

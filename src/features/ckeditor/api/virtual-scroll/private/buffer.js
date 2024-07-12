@@ -14,7 +14,7 @@ const $buffer = {
 
 	flush() {
 		this.ioEntries.forEach(entry => this.entryIterator(entry));
-		this.types.forEach(type => this.bufferFlush(type));
+		this.types.forEach(type => this[type].html.length > 0 && this.bufferFlush(type));
 		this.clear();
 	},
 
@@ -49,32 +49,22 @@ const $buffer = {
 
 		this[type].html.push(html);
 		this[type].index.push(index);
-		this[type].oldElements.push($editor.getRootChild(index));
+		this[type].oldElements.push($editor.model.getChild(index));
 	},
 
 	bufferFlush(type) {
-		if (this[type].html.length <= 0) return;
-
 		if (type === this.types[1]) {
-			const htmlText = $editor.getHtmlText();
-			const body = $chunk.getBody(htmlText);
-			this[type].index.forEach(idx => this.dummyIterator(idx, body));
+			this[type].index.forEach(idx => this.dummyIterator(idx));
 		}
-
 		$editor.replaceAll(this[type].index, this[type].html, this[type].oldElements);
 	},
 
-	dummyIterator(index, data) {
-		const element = $editor.getElement(index, data);
-		const text = element?.outerHTML;
-		if (!text) return;
-		const isDummy = text.includes("data-content-dummy");
-		if (!isDummy) return;
-		const isUnsafe = text.includes("data-ck-unsafe-element");
-		if (isUnsafe) return;
-		const isSame = text === $chunk.getData(index);
-		if (isSame) return;
-		$chunk.setData(index, text);
+	dummyIterator(index) {
+		const element = $editor.getContentAtIndex(index);
+		if (!element) return;
+		if (element.includes("data-content-dummy") || element.includes("data-ck-unsafe-element")) return;
+		const chunk = $chunk.getData(index);
+		if (element !== chunk) $chunk.setData(index, element);
 	},
 }
 
@@ -82,7 +72,7 @@ export default $buffer;
 
 /**
  * 노드 순회하며 인덱스 반환
- * @param {HTMLParagraphElement} element
+ * @param {HTMLElement} element
  * @returns {number}
  */
 function getIndex(element) {
