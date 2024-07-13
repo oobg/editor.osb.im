@@ -54,21 +54,11 @@ const $editor = {
 	getContentAtIndex(index) {
 		const modelElement = this.model.getChild(index);
 		if (!modelElement) return "";
+		let tagName = convertTagName(modelElement.name);
+		const attributes = convertAttributesToHtmlString(modelElement);
 		const viewFragment = this.editor.data.toView(modelElement);
 		let html = this.editor.data.processor.toData(viewFragment);
-
-		let tagName = modelElement.name;
-		if (tagName.startsWith('heading')) {
-			tagName = `h${tagName.slice(-1)}`;
-		} else if (tagName === 'paragraph') {
-			tagName = 'p';
-		}
-
-		const attributes = Array.from(modelElement.getAttributeKeys())
-			.map(attrKey => `${attrKey}="${modelElement.getAttribute(attrKey)}"`)
-			.join(' ');
-
-		return `<${tagName}${attributes && ` ${attributes}`}>${html}</${tagName}>`;
+		return createHtmlTag(tagName, attributes, html);
 	},
 
 	setData(html) {
@@ -117,6 +107,27 @@ function replace(writer, data) {
 		writer.insert(newEl, $editor.model.getRoot(), index);
 		writer.remove(oldEl);
 	});
+}
+
+function convertTagName(tagName) {
+	if (tagName.startsWith('heading')) {
+		tagName = `h${tagName.slice(-1)}`;
+	} else if (tagName === 'paragraph') {
+		tagName = 'p';
+	}
+	return tagName;
+}
+
+function convertAttributesToHtmlString(modelElement) {
+	const attributes = modelElement.getAttributes();
+	if (Object.keys(attributes).length === 0) return;
+
+	const keys = Object.keys(attributes);
+	return keys.map(key => `${key}="${attributes[key]}"`).join(" ");
+}
+
+function createHtmlTag(tagName, attributes, html) {
+	return  `<${tagName}${attributes && ` ${attributes}`}>${html}</${tagName}>`;
 }
 
 function paragraphWatcher(eventInfo, batch) {
