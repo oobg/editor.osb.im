@@ -30,19 +30,14 @@ const $editor = {
 
 	/**
 	 * 1 change 내에서 여러 Element를 교체
-	 * @param {index[]} index
-	 * @param {string[]} html
-	 * @param {HTMLModElement[]} oldElements
+	 * @param {[{ index: number, oldEl: HTMLModElement, newEl: DocumentFragment }]} data
+	 *  - index: 삽입할 인덱스
+	 *  - oldEl: 삭제할 Element
+	 *  - newEl: 새로운 Element
 	 */
-	replaceAll(index, html, oldElements) {
+	replaceAll(data) {
 		this.isReplacing = true;
-		const fragments = html.map(html => this.createModelFragment(html));
-		this.editor.model.change(writer => {
-			fragments.forEach((fragment, i) => {
-				writer.insert(fragment, this.root, index[i]);
-				oldElements[i] && writer.remove(oldElements[i]);
-			});
-		});
+		this.editor.model.change(writer => replace(writer, data));
 		this.isReplacing = false;
 	},
 
@@ -116,6 +111,13 @@ const $editor = {
 }
 
 export default $editor;
+
+function replace(writer, data) {
+	data.forEach(({ index, oldEl, newEl }) => {
+		writer.insert(newEl, $editor.model.getRoot(), index);
+		writer.remove(oldEl);
+	});
+}
 
 function paragraphWatcher(eventInfo, batch) {
 	const count = $editor.model.getChildCount();

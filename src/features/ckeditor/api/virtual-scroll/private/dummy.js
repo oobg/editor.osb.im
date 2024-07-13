@@ -55,7 +55,7 @@ const $dummy = {
 	 * @param {number | string} height 더미의 높이. 기본값은 100
 	 * @returns {string} 더미 HTML 문자열
 	 */
-	getDummyHtml(height = 24) {
+	getHtml(height = 24) {
 		return this.dummyHTML.replace("height: ;", `height: ${height}px;`);
 	},
 }

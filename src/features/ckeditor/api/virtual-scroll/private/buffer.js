@@ -14,14 +14,14 @@ const $buffer = {
 
 	flush() {
 		this.ioEntries.forEach(entry => this.entryIterator(entry));
-		this.types.forEach(type => this[type].html.length > 0 && this.bufferFlush(type));
+		this.types.forEach(type => this.get(type).length > 0 && this.bufferFlush(type));
 		this.clear();
 	},
 
 	clear() {
 		this.ioEntries = [];
-		this.chunk = { html: [], index: [], oldElements: [] };
-		this.dummy = { html: [], index: [], oldElements: [] };
+		this.chunk = [];
+		this.dummy = [];
 	},
 
 	/**
@@ -44,19 +44,19 @@ const $buffer = {
 	},
 
 	setBuffer(type, index, height) {
-		const html = type === this.types[0] ? $chunk.getData(index) : $dummy.getDummyHtml(height);
+		const isChunk = type === this.types[0];
+		const html = isChunk ? $chunk.getData(index) : $dummy.getHtml(height);
 		if (!html) return;
 
-		this[type].html.push(html);
-		this[type].index.push(index);
-		this[type].oldElements.push($editor.model.getChild(index));
+		const oldEl = $editor.model.getChild(index);
+		const newEl = $editor.createModelFragment(html);
+		this.get(type).push({ index, oldEl, newEl });
 	},
 
 	bufferFlush(type) {
-		if (type === this.types[1]) {
-			this[type].index.forEach(idx => this.dummyIterator(idx));
-		}
-		$editor.replaceAll(this[type].index, this[type].html, this[type].oldElements);
+		const isDummy = type === this.types[1];
+		isDummy && this.dummy.forEach(({index}) => this.dummyIterator(index));
+		$editor.replaceAll(this.get(type));
 	},
 
 	dummyIterator(index) {
@@ -65,6 +65,10 @@ const $buffer = {
 		if (element.includes("data-content-dummy") || element.includes("data-ck-unsafe-element")) return;
 		const chunk = $chunk.getData(index);
 		if (element !== chunk) $chunk.setData(index, element);
+	},
+
+	get(type) {
+		return this[type];
 	},
 }
 
@@ -77,8 +81,6 @@ export default $buffer;
  */
 function getIndex(element) {
 	let index = 0;
-	while ((element = element.previousElementSibling) != null) {
-		index++;
-	}
+	while ((element = element.previousElementSibling) != null) index++;
 	return index;
 }
