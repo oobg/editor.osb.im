@@ -135,7 +135,7 @@ function onChange(change) {
 	const index = change.position.path[0];
 	switch (change.type) {
 		case 'insert':
-			$chunk.insertData(index, $editor.getContentAtIndex(index));
+			$chunk.insertData(index);
 			break;
 		case 'remove':
 			$chunk.removeData(index);

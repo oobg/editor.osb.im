@@ -56,7 +56,7 @@ const $chunk = {
 	 * @param {number} index
 	 * @param {string} value
 	 */
-	insertData(index, value) {
+	insertData(index, value = "") {
 		this.data.splice(index, 0, value);
 	},
 
