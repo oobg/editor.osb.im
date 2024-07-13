@@ -7,6 +7,7 @@ import $observer from "./private/observer.js";
 const $plugin = {
 	async init(editor, html = "") {
 		$editor.init(editor);
+		$observer.init();
 		await initialize(html);
 	},
 
@@ -32,7 +33,7 @@ export default $plugin;
 async function initialize(html = "") {
 	$chunk.init(html);
 	$buffer.init();
-	await $observer.init();
+	$observer.connect();
 	await $dummy.init();
 
 	$editor.setParagraphWatch();
