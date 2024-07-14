@@ -67,7 +67,7 @@ function setBuffer(type, index, height) {
 	if (!html) return;
 
 	const oldEl = $editor.model.getChild(index);
-	const newEl = $editor.createModelFragment(html);
+	const newEl = $editor.model.createFragment(html);
 	const buffer = { index, oldEl, newEl };
 	getBuffer(type).push(buffer);
 }
@@ -79,7 +79,7 @@ function bufferFlush(type) {
 }
 
 function dummyIterator(index) {
-	const element = $editor.getContentAtIndex(index);
+	const element = $editor.getDataAtIndex(index);
 	if (!element) return;
 	if (element.includes("data-content-dummy") || element.includes("data-ck-unsafe-element")) return;
 	const chunk = $chunk.getData(index);

@@ -53,13 +53,13 @@ function pushBuffer(index) {
 function flushBuffer(index, length) {
 	if ((index % $dummy.batchSize !== 0 || index === 0) && index !== length - 1) return
 	const html = $dummy.buffer.join("");
-	const documentFragment = $editor.createModelFragment(html);
-	$editor.insertModelElement(documentFragment, "end");
+	const documentFragment = $editor.model.createFragment(html);
+	$editor.model.insertElement(documentFragment, "end");
 	$dummy.buffer = [];
 }
 
 // 가장 첫 번째 공백 요소 제거
 function removeFirstElement() {
 	const firstElement = $editor.model.getChild(0);
-	firstElement && $editor.removeModelElement(firstElement);
+	firstElement && $editor.model.removeElement(firstElement);
 }

@@ -12,7 +12,7 @@ const $plugin = {
 	},
 
 	destroy() {
-		$editor.removeParagraphWatch();
+		$editor.paragraph.removeWatch();
 		$observer.disconnect();
 	},
 
@@ -36,5 +36,5 @@ async function initialize(html = "") {
 	$observer.connect();
 	await $dummy.init();
 
-	$editor.setParagraphWatch();
+	$editor.paragraph.setWatch();
 }

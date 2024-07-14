@@ -3,29 +3,27 @@ import $chunk from './chunk.js';
 const $editor = {
 	init(editor) {
 		this.editor = editor;
-		this.engine = this.editor.editing;
-		this.root = this.editor.model.document.getRoot();
 
 		this.isReplacing = false;
 		this.lastParagraphCount = 0;
 	},
 
-	/**
-	 * HTML String -> View Fragment -> Model Fragment
-	 * @param {string} html
-	 * @returns {DocumentFragment}
-	 */
-	createModelFragment(html) {
-		const viewFragment = this.editor.data.processor.toView(html);
-		return this.editor.data.toModel(viewFragment);
+	setData(html) {
+		this.editor.setData(html);
 	},
 
-	insertModelElement(target, index) {
-		this.editor.model.change(writer => writer.insert(target, this.root, index));
+	getData() {
+		return this.editor.getData();
 	},
 
-	removeModelElement(target) {
-		this.editor.model.change(writer => writer.remove(target));
+	getDataAtIndex(index) {
+		const modelElement = this.model.getChild(index);
+		if (!modelElement) return "";
+		let tagName = convertTagName(modelElement.name);
+		const attributes = convertAttributesToHtmlString(modelElement);
+		const viewFragment = this.editor.data.toView(modelElement);
+		let html = this.editor.data.processor.toData(viewFragment);
+		return createHtmlTag(tagName, attributes, html);
 	},
 
 	/**
@@ -41,43 +39,26 @@ const $editor = {
 		this.isReplacing = false;
 	},
 
-	/**
-	 * Model Element -> View Element -> DOM Element
-	 * @param {HTMLModElement} modelElement
-	 * @returns {HTMLElement}
-	 */
-	findDomElement(modelElement) {
-		const viewElement = this.engine.mapper.toViewElement(modelElement);
-		return this.engine.view.domConverter.mapViewToDom(viewElement);
-	},
-
-	getContentAtIndex(index) {
-		const modelElement = this.model.getChild(index);
-		if (!modelElement) return "";
-		let tagName = convertTagName(modelElement.name);
-		const attributes = convertAttributesToHtmlString(modelElement);
-		const viewFragment = this.editor.data.toView(modelElement);
-		let html = this.editor.data.processor.toData(viewFragment);
-		return createHtmlTag(tagName, attributes, html);
-	},
-
-	setData(html) {
-		this.editor.setData(html);
-	},
-
-	getData() {
-		return this.editor.getData();
-	},
-
 	document: {
+		/**
+		 * Model Element -> View Element -> DOM Element
+		 * @param {HTMLModElement} modelElement
+		 * @returns {HTMLElement}
+		 */
+		findElement(modelElement) {
+			const viewElement = $editor.editor.editing.mapper.toViewElement(modelElement);
+			return $editor.editor.editing.view.domConverter.mapViewToDom(viewElement);
+		},
+
 		getRoot() {
-			return $editor.findDomElement($editor.model.getRoot());
+			const root = $editor.model.getRoot();
+			return this.findElement(root);
 		},
 	},
 
 	model: {
 		getRoot() {
-			return $editor.root;
+			return $editor.editor.model.document.getRoot();
 		},
 
 		getChild(index) {
@@ -87,16 +68,36 @@ const $editor = {
 		getChildCount() {
 			return this.getRoot().childCount;
 		},
+
+		/**
+		 * HTML String -> View Fragment -> Model Fragment
+		 * @param {string} html
+		 * @returns {DocumentFragment}
+		 */
+		createFragment(html) {
+			const viewFragment = $editor.editor.data.processor.toView(html);
+			return $editor.editor.data.toModel(viewFragment);
+		},
+
+		insertElement(target, index) {
+			$editor.editor.model.change(writer => writer.insert(target, this.getRoot(), index));
+		},
+
+		removeElement(target) {
+			$editor.editor.model.change(writer => writer.remove(target));
+		},
 	},
 
-	// 문단 수 카운트 및 감시
-	setParagraphWatch() {
-		this.lastParagraphCount = this.model.getChildCount();
-		this.editor.model.document.on("change:data", () => paragraphWatcher);
-	},
+	paragraph: {
+		// 문단 수 카운트 및 감시
+		setWatch() {
+			$editor.lastParagraphCount = $editor.model.getChildCount();
+			$editor.editor.model.document.on("change:data", () => paragraphWatcher);
+		},
 
-	removeParagraphWatch() {
-		this.editor.model.document.off("change:data", () => paragraphWatcher);
+		removeWatch() {
+			$editor.editor.model.document.off("change:data", () => paragraphWatcher);
+		},
 	},
 }
 
