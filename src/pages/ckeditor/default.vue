@@ -42,7 +42,11 @@ async function onChange(event) {
       <v-file-input hide-input prepend-icon="" ref="fileInput" @change="onChange" />
     </div>
     <div class="ck-container">
-      <ckeditor v-model="content" :editor @ready="ready" />
+      <ckeditor
+        v-model="content"
+        :editor="editor"
+        @ready="ready"
+      />
     </div>
   </v-container>
 </template>
