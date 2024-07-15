@@ -99,6 +99,18 @@ const $editor = {
 			$editor.editor.model.document.off("change:data", () => paragraphWatcher);
 		},
 	},
+
+	scroll: {
+		setWatch() {
+			const root = $editor.document.getRoot();
+			root.addEventListener("scroll", scrollEvent);
+		},
+
+		removeWatch() {
+			const root = $editor.document.getRoot();
+			root.removeEventListener("scroll", scrollEvent);
+		},
+	},
 }
 
 export default $editor;
@@ -155,4 +167,12 @@ function onChange(change) {
 		default:
 			break;
 	}
+}
+
+function scrollEvent(event) {
+	const isFocus = $editor.editor.ui.focusTracker.isFocused;
+	if (!isFocus) return;
+
+	event.target.blur();
+	$editor.scroll.removeWatch();
 }

@@ -13,6 +13,7 @@ const $plugin = {
 
 	destroy() {
 		$editor.paragraph.removeWatch();
+		$editor.scroll.removeWatch();
 		$observer.disconnect();
 	},
 
@@ -26,6 +27,16 @@ const $plugin = {
 		this.destroy();
 		await initialize(html);
 	},
+
+	scroll: {
+		addEvent() {
+			$editor.scroll.setWatch();
+		},
+
+		removeEvent() {
+			$editor.scroll.removeWatch();
+		},
+	},
 }
 
 export default $plugin;
@@ -37,4 +48,5 @@ async function initialize(html = "") {
 	await $dummy.init();
 
 	$editor.paragraph.setWatch();
+	$editor.scroll.setWatch();
 }

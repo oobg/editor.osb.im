@@ -13,8 +13,10 @@ useMeta({
 const editor = ref(ClassicEditor);
 const fileInput = ref(null);
 
-const ready = (instance) => $plugin.init(instance);
-const destroy = () => $plugin.destroy();
+const onReady = (instance) => $plugin.init(instance);
+const onDestroy = () => $plugin.destroy();
+const onFocus = () => $plugin.scroll.addEvent();
+const onBlur = () => $plugin.scroll.removeEvent();
 const getData = async () => alert(await $plugin.getData());
 const setData = (html) => $plugin.setData(html);
 
@@ -45,8 +47,10 @@ async function onChange(event) {
       <ckeditor
         :editor
         :disable-two-way-data-binding="true"
-        @ready="ready"
-        @destroy="destroy"
+        @ready="onReady"
+        @destroy="onDestroy"
+        @focus="onFocus"
+        @blur="onBlur"
       />
     </div>
   </v-container>
