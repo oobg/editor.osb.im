@@ -43,6 +43,11 @@ export default $observer;
  * @param {IntersectionObserver} observer
  */
 function intersectionHandler(entries, observer) {
+	if (entries.length === 1) {
+		const entry = entries[0];
+		const isSelection = entry.target.classList.contains("ck-fake-selection-container");
+		if (isSelection) return;
+	}
 	$buffer.push(entries);
 	$buffer.flush();
 }
@@ -70,6 +75,8 @@ function processNodes(nodes, action) {
 }
 
 function observe(element) {
+	const isSelection = element.classList.contains("ck-fake-selection-container");
+	if (isSelection) return;
 	$observer.io.observe(element);
 }
 
