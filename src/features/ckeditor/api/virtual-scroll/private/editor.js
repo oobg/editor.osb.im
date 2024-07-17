@@ -140,7 +140,8 @@ function convertAttributesToHtmlString(modelElement) {
 }
 
 function createHtmlTag(tagName, attributes, html) {
-	return  `<${tagName}${attributes && ` ${attributes}`}>${html}</${tagName}>`;
+	const attribute = attributes ? ` ${attributes}` : "";
+	return `<${tagName}${attribute}>${html}</${tagName}>`;
 }
 
 function paragraphWatcher(eventInfo, batch) {
