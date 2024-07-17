@@ -1,82 +1,62 @@
+let data = [];
 
-const $chunk = {
-	parser: new DOMParser(),
+const parser = new DOMParser();
+const parse = (html) => parser.parseFromString(html, 'text/html');
+const parseHtml = (html) => {
+	const elements = Array.from(parse(html).body.childNodes)
+		.filter(node => node.nodeType === 1)
+		.map(element => element.outerHTML);
 
-	init(html) {
-		this.data = this.parseHtml(html);
-	},
+	return elements.length > 0 ? elements : [""];
+};
 
-	getBody(html) {
-		const doc = this.parser.parseFromString(html, 'text/html');
-		return doc.body;
-	},
+const init = (html) => (data = parseHtml(html));
+const getLength = () => data.length;
+const getText = () => data.join("");
+const getData = (index) => data[index];
+const setData = (index, value) => (data[index] = value);
+const insertData = (index, value = "") => data.splice(index, 0, value);
+const removeData = (index) => data.splice(index, 1);
 
-	/**
-	 * HTML Text 파싱해서 배열로 반환
-	 * @param {string} html
-	 * @returns {string[]}
-	 */
-	parseHtml(html) {
-		const body = this.getBody(html);
-		const elements = Array.from(body.childNodes).filter(node => node.nodeType === 1);
+const updateData = (html) => {
+	const children = parseHtml(html);
 
-		if (elements.length === 0) return [""];
+	// 비교를 통해 기존 데이터와 새 데이터 업데이트
+	const maxLength = Math.max(data.length, children.length);
+	for (let i = 0; i < maxLength; i++) {
+		const oldChild = data[i];
+		const newChild = children[i];
 
-		return elements.map(element => element.outerHTML);
-	},
+		// 새 데이터가 더 길다면 새로운 요소 추가
+		if (i >= data.length) {
+			data.push(newChild);
+			continue;
+		}
 
-	/**
-	 * 배열의 특정 데이터 가져오기
-	 * @param {number} index
-	 * @returns {string}
-	 */
-	getData(index) {
-		return this.data[index];
-	},
+		// 기존 데이터가 더 길다면 기존 요소 삭제
+		if (i >= children.length) {
+			data.splice(i, 1);
+			i--; // 삭제 후 인덱스를 조정
+			continue;
+		}
 
-	getText() {
-		return this.data.join("");
-	},
+		// 두 데이터가 다르다면 업데이트
+		if (oldChild !== newChild) {
+			const isDummy = newChild.includes("data-content-dummy");
+			if (!isDummy) {
+				data[i] = newChild;
+			}
+		}
+	}
+};
 
-	/**
-	 * 배열의 특정 데이터 변경
-	 * @param {number} index
-	 * @param {string} value
-	 */
-	setData(index, value) {
-		this.data[index] = value;
-	},
-
-	getLength() {
-		return this.data.length;
-	},
-
-	/**
-	 * 배열의 특정 위치에 데이터 삽입
-	 * @param {number} index
-	 * @param {string} value
-	 */
-	insertData(index, value = "") {
-		this.data.splice(index, 0, value);
-	},
-
-	/**
-	 * 배열의 특정 위치의 데이터 삭제
-	 * @param {number} index
-	 */
-	removeData(index) {
-		this.data.splice(index, 1);
-	},
-
-	updateData(html) {
-		const children = this.parseHtml(html);
-		this.data.length = children.length;
-
-		children.forEach((child, index) => {
-			const isDummy = child.includes("data-content-dummy");
-			if (!isDummy) this.setData(index, child);
-		});
-	},
-}
-
-export default $chunk;
+export default {
+	init,
+	getLength,
+	getText,
+	getData,
+	setData,
+	insertData,
+	removeData,
+	updateData,
+};
