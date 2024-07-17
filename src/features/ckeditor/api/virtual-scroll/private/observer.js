@@ -1,53 +1,45 @@
 import $editor from "./editor.js";
 import $buffer from "./buffer.js";
 
-const $observer = {
-	options: {
-		root: null,
-		rootMargin: "1000% 0px",
-		threshold: 0,
-	},
+const observers = {
 	io: null,
 	mo: null,
+};
 
-	init() {
-		this.root = $editor.document.getRoot();
-		this.options.root = this.root;
-		this.connect();
-	},
+const options = {
+	root: null,
+	rootMargin: "1000% 0px",
+	threshold: 0,
+};
 
-	connect() {
-		// Intersection Observer 초기화
-		this.io = new IntersectionObserver(intersectionHandler.bind(this), this.options);
-
-		// Mutation Observer 초기화
-		this.mo = new MutationObserver(mutationHandler.bind(this));
-		this.mo.observe(this.root, { childList: true });
-	},
-
-	disconnect() {
-		const observerList = ["io", "mo"];
-		observerList.forEach(observer => {
-			this[observer]?.takeRecords();
-			this[observer]?.disconnect();
-			this[observer] = null;
-		});
-	},
+const init = () => {
+	options.root = $editor.document.getRoot();
+	connect();
 }
 
-export default $observer;
+const connect = () => {
+	observers.io = new IntersectionObserver(intersectionHandler, options);
+	observers.mo = new MutationObserver(mutationHandler);
+	observers.mo.observe(options.root, { childList: true });
+}
+
+const disconnect = () => {
+	Object.keys(observers).forEach(observerName => {
+		const observer = observers[observerName];
+		if (!observer) return;
+		observer.takeRecords();
+		observer.disconnect();
+		observers[observerName] = null;
+	});
+}
 
 /**
  * IntersectionObserver 콜백 함수: viewport와 target element의 교차 여부 확인
  * @param {IntersectionObserverEntry[]} entries
  * @param {IntersectionObserver} observer
  */
-function intersectionHandler(entries, observer) {
-	if (entries.length === 1) {
-		const entry = entries[0];
-		const isSelection = entry.target.classList.contains("ck-fake-selection-container");
-		if (isSelection) return;
-	}
+const intersectionHandler = (entries, observer) => {
+	if (entries.length === 1 && isSelection(entries[0].target)) return;
 	$buffer.push(entries);
 	$buffer.flush();
 }
@@ -56,7 +48,7 @@ function intersectionHandler(entries, observer) {
  * MutationObserver 콜백 함수: DOM 변경 감지
  * @param {MutationRecord[]} mutations
  */
-function mutationHandler(mutations) {
+const mutationHandler = (mutations) => {
 	mutations.forEach(mutation => {
 		if (mutation.type !== "childList") return;
 		const { addedNodes, removedNodes } = mutation;
@@ -65,21 +57,13 @@ function mutationHandler(mutations) {
 	});
 }
 
-/**
- * 노드 목록을 순회하며 콜백 함수 실행
- * @param {NodeList} nodes
- * @param {function} action
- */
-function processNodes(nodes, action) {
-	nodes.forEach(node => node.nodeType === 1 && action.call(this, node));
-}
+const processNodes = (nodes, action) => nodes.forEach(node => node.nodeType === 1 && action(node));
+const observe = (element) => !isSelection(element) && observers.io.observe(element);
+const unobserve = (element) => observers.io.unobserve(element);
+const isSelection = (element) => element.classList.contains("ck-fake-selection-container");
 
-function observe(element) {
-	const isSelection = element.classList.contains("ck-fake-selection-container");
-	if (isSelection) return;
-	$observer.io.observe(element);
-}
-
-function unobserve(element) {
-	$observer.io.unobserve(element);
+export default {
+	init,
+	connect,
+	disconnect,
 }
