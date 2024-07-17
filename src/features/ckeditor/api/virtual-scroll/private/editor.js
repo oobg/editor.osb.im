@@ -103,12 +103,12 @@ const $editor = {
 	scroll: {
 		setWatch() {
 			const root = $editor.document.getRoot();
-			root.addEventListener("scroll", scrollEvent);
+			root?.addEventListener("scroll", scrollEvent);
 		},
 
 		removeWatch() {
 			const root = $editor.document.getRoot();
-			root.removeEventListener("scroll", scrollEvent);
+			root?.removeEventListener("scroll", scrollEvent);
 		},
 	},
 }
