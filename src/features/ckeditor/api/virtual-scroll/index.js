@@ -47,6 +47,7 @@ async function initialize(html = "") {
 	$observer.connect();
 	await $dummy.init();
 
+	$editor.paragraph.setCount();
 	$editor.paragraph.setWatch();
 	$editor.scroll.setWatch();
 }
