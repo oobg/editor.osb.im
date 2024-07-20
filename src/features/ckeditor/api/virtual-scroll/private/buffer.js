@@ -33,7 +33,7 @@ const entryIterator = (entries) => {
 		const { isIntersecting, target, boundingClientRect } = entry;
 
 		const isDummy = target.hasAttribute("data-content-dummy");
-		if (isIntersecting !== isDummy) return;
+		if (isIntersecting !== isDummy) continue;
 
 		const type = isIntersecting ? types[0] : types[1];
 		const index = getIndex(target);
