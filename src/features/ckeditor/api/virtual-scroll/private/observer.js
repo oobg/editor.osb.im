@@ -10,12 +10,10 @@ const options = {
 	root: null,
 	rootMargin: "1000% 0px",
 	threshold: 0,
+	delay: 100,
 };
 
-const init = () => {
-	options.root = $editor.document.getRoot();
-	connect();
-}
+const init = () => options.root = $editor.document.getRoot();
 
 const connect = () => {
 	observers.io = new IntersectionObserver(intersectionHandler, options);
@@ -24,13 +22,12 @@ const connect = () => {
 }
 
 const disconnect = () => {
-	Object.keys(observers).forEach(observerName => {
-		const observer = observers[observerName];
-		if (!observer) return;
-		observer.takeRecords();
-		observer.disconnect();
-		observers[observerName] = null;
-	});
+	for (const name in observers) {
+		if (!observers[name]) continue;
+		observers[name].takeRecords();
+		observers[name].disconnect();
+		observers[name] = null;
+	}
 }
 
 /**
@@ -58,9 +55,10 @@ const mutationHandler = (mutations) => {
 }
 
 const processNodes = (nodes, action) => nodes.forEach(node => node.nodeType === 1 && action(node));
-const observe = (element) => !isSelection(element) && observers.io.observe(element);
+const observe = (element) => !isSelection(element) && !isImage(element) && observers.io.observe(element);
 const unobserve = (element) => observers.io.unobserve(element);
 const isSelection = (element) => element.classList.contains("ck-fake-selection-container");
+const isImage = (element) => element.querySelector("img");
 
 export default {
 	init,
