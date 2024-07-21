@@ -4,44 +4,35 @@ import $dummy from "./private/dummy.js";
 import $editor from "./private/editor.js";
 import $observer from "./private/observer.js";
 
-const $plugin = {
-	async init(editor, html = "") {
-		$editor.init(editor);
-		$observer.init();
-		await initialize(html);
-	},
+const scroll = {};
 
-	destroy() {
-		$editor.paragraph.removeWatch();
-		$editor.scroll.removeWatch();
-		$observer.disconnect();
-	},
-
-	async getData() {
-		const html = await $editor.getData();
-		await $chunk.updateData(html);
-		return $chunk.getText();
-	},
-
-	async setData(html = "") {
-		this.destroy();
-		await initialize(html);
-	},
-
-	scroll: {
-		addEvent() {
-			$editor.scroll.setWatch();
-		},
-
-		removeEvent() {
-			$editor.scroll.removeWatch();
-		},
-	},
+const init = async (editor, html = "") => {
+	$editor.init(editor);
+	$observer.init();
+	await initialize(html);
 }
 
-export default $plugin;
+const destroy = () => {
+	$editor.paragraph.removeWatch();
+	$editor.scroll.removeWatch();
+	$observer.disconnect();
+}
 
-async function initialize(html = "") {
+const getData = async () => {
+	const html = await $editor.getData();
+	await $chunk.updateData(html);
+	return $chunk.getText();
+}
+
+const setData = async (html = "") => {
+	destroy();
+	await initialize(html);
+}
+
+scroll.addEvent = () => $editor.scroll.setWatch();
+scroll.removeEvent = () => $editor.scroll.removeWatch()
+
+const initialize = async (html = "") => {
 	$chunk.init(html);
 	$buffer.init();
 	$observer.connect();
@@ -51,3 +42,11 @@ async function initialize(html = "") {
 	$editor.paragraph.setWatch();
 	$editor.scroll.setWatch();
 }
+
+export default {
+	init,
+	destroy,
+	getData,
+	setData,
+	scroll,
+};
