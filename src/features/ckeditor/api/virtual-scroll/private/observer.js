@@ -36,7 +36,6 @@ const disconnect = () => {
  * @param {IntersectionObserver} observer
  */
 const intersectionHandler = (entries, observer) => {
-	if (entries.length === 1 && isSelection(entries[0].target)) return;
 	$buffer.push(entries);
 	$buffer.flush();
 }
@@ -55,10 +54,9 @@ const mutationHandler = (mutations) => {
 }
 
 const processNodes = (nodes, action) => nodes.forEach(node => node.nodeType === 1 && action(node));
-const observe = (element) => !isSelection(element) && !isImage(element) && observers.io.observe(element);
-const unobserve = (element) => observers.io.unobserve(element);
-const isSelection = (element) => element.classList.contains("ck-fake-selection-container");
-const isImage = (element) => element.querySelector("img");
+const observe = (node) => validate(node) && observers.io.observe(node);
+const unobserve = (node) => observers.io.unobserve(node);
+const validate = (node) => !node.querySelector("img") && !node.classList.contains("ck-fake-selection-container");
 
 export default {
 	init,
