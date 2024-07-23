@@ -3,17 +3,17 @@ import $chunk from './chunk.js';
 let editor = null;
 let isReplacing = false;
 let lastParagraphCount = 0;
-const document = {};
-const model = {};
-const paragraph = {};
-const scroll = {};
+const $document = {};
+const $model = {};
+const $paragraph = {};
+const $scroll = {};
 
 const init = (instance) => editor = instance;
 
 const setData = (html) => editor.setData(html);
 const getData = () => editor.getData();
 const getDataAtIndex = (index) => {
-	const modelElement = model.getChild(index);
+	const modelElement = $model.getChild(index);
 	if (!modelElement) return "";
 	let tagName = convertTagName(modelElement.name);
 	const attributes = convertAttributesToHtmlString(modelElement);
@@ -35,25 +35,25 @@ const replaceAll = (data) => {
 	isReplacing = false;
 }
 
-document.getRoot = () => document.findElement(model.getRoot());
-document.findElement = (modelElement) => {
+$document.getRoot = () => $document.findElement($model.getRoot());
+$document.findElement = (modelElement) => {
 	const viewElement = editor.editing.mapper.toViewElement(modelElement);
 	return editor.editing.view.domConverter.mapViewToDom(viewElement);
 }
 
-model.getRoot = () => editor.model.document.getRoot();
-model.getChild = (index) => model.getRoot().getChild(index);
-model.getChildCount = () => model.getRoot().childCount;
-model.createFragment = (html) => editor.data.toModel( editor.data.processor.toView(html) );
-model.insertElement = (target, index) => editor.model.change(writer => writer.insert(target, model.getRoot(), index));
-model.removeElement = (target) => editor.model.change(writer => writer.remove(target));
+$model.getRoot = () => editor.model.document.getRoot();
+$model.getChild = (index) => $model.getRoot().getChild(index);
+$model.getChildCount = () => $model.getRoot().childCount;
+$model.createFragment = (html) => editor.data.toModel( editor.data.processor.toView(html) );
+$model.insertElement = (target, index) => editor.model.change(writer => writer.insert(target, $model.getRoot(), index));
+$model.removeElement = (target) => editor.model.change(writer => writer.remove(target));
 
-paragraph.setCount = () => lastParagraphCount = model.getChildCount();
-paragraph.setWatch = () => editor.model.document.on("change:data", () => paragraphWatcher);
-paragraph.removeWatch = () => editor.model.document.off("change:data", () => paragraphWatcher);
+$paragraph.setCount = () => lastParagraphCount = $model.getChildCount();
+$paragraph.setWatch = () => editor.model.document.on("change:data", () => paragraphWatcher);
+$paragraph.removeWatch = () => editor.model.document.off("change:data", () => paragraphWatcher);
 
-scroll.setWatch = () => document.getRoot()?.addEventListener("wheel", scrollEvent);
-scroll.removeWatch = () => document.getRoot()?.removeEventListener("wheel", scrollEvent);
+$scroll.setWatch = () => $document.getRoot()?.addEventListener("wheel", scrollEvent);
+$scroll.removeWatch = () => $document.getRoot()?.removeEventListener("wheel", scrollEvent);
 
 const convertTagName = (tagName) => {
 	if (tagName.startsWith('heading')) {
@@ -77,13 +77,13 @@ const createHtmlTag = (tagName, attributes, html) => {
 
 const replace = (writer, data) => {
 	for (const { index, oldEl, newEl } of data) {
-		writer.insert(newEl, model.getRoot(), index);
+		writer.insert(newEl, $model.getRoot(), index);
 		writer.remove(oldEl);
 	}
 }
 
 const paragraphWatcher = (eventInfo, batch) => {
-	const count = model.getChildCount();
+	const count = $model.getChildCount();
 	if (isReplacing || lastParagraphCount === count) return;
 
 	// 문단 수 동기화
@@ -119,8 +119,8 @@ export default {
 	getData,
 	getDataAtIndex,
 	replaceAll,
-	document,
-	model,
-	paragraph,
-	scroll,
+	document: $document,
+	model: $model,
+	paragraph: $paragraph,
+	scroll: $scroll,
 };
