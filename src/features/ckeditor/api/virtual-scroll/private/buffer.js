@@ -1,21 +1,20 @@
 import $chunk from "./chunk.js";
-import $dummy from "./dummy.js";
 import $editor from "./editor.js";
 
-const types = [ Symbol("chunk"), Symbol("dummy") ];
+const types = [ Symbol.for("chunk"), Symbol.for("dummy") ];
 let chunk = [];
 let dummy = [];
 
 const init = () => clear();
 
 const push = (entries) => {
-	const filtered = entries.filter(entry => validateDataSet(entry.target));
+	const filtered = entries.filter(entry => !entry.target.hasAttribute("data-ck-unsafe-element"));
 	entryIterator(filtered);
 }
 
 const flush = () => {
-	chunk.length > 0 && bufferFlush(types[0]);
-	dummy.length > 0 && bufferFlush(types[1]);
+	if (chunk.length > 0) bufferFlush(types[0]);
+	if (dummy.length > 0) bufferFlush(types[1]);
 	clear();
 };
 
@@ -42,11 +41,6 @@ const entryIterator = (entries) => {
 	}
 };
 
-/**
- * 노드 순회하며 인덱스 반환
- * @param {HTMLElement} element
- * @returns {number}
- */
 const getIndex = (element) => {
 	let index = 0;
 	while ((element = element.previousElementSibling) != null) index++;
@@ -56,32 +50,28 @@ const getIndex = (element) => {
 const getBuffer = (type) => type === types[0] ? chunk : dummy;
 
 const setBuffer = (type, index, height) => {
-	const isChunk = type === types[0];
-	const html = isChunk ? $chunk.getData(index) : $dummy.getHtml(height);
-	if (!html) return;
-
-	const oldEl = $editor.model.getChild(index);
-	const newEl = $editor.model.createFragment(html);
-	const buffer = { index, oldEl, newEl };
-	getBuffer(type).push(buffer);
+	const html = type === types[0] ? $chunk.getInnerData(index) : "";
+	const isHtml = isHtmlString(html);
+	const element = isHtml ? $editor.model.createFragment(html) : html;
+	getBuffer(type).push({ index, element, type, height });
 };
 
 const bufferFlush = (type) => {
-	const isDummy = type === types[1];
-	isDummy && dummy.forEach(({ index }) => dummyIterator(index));
+	if (type === types[1]) {
+		for (const { index } of dummy) {
+			dummyIterator(index);
+		}
+	}
 	$editor.replaceAll(getBuffer(type));
 };
 
 const dummyIterator = (index) => {
 	const element = $editor.getDataAtIndex(index);
-	if (!element) return;
-	if (detectDataSet(element)) return;
-	const chunk = $chunk.getData(index);
-	if (element !== chunk) $chunk.setData(index, element);
+	if (!element && element.trim() === "") return;
+	$chunk.setInnerData(index, element);
 };
 
-const detectDataSet = (element) => /data-(content-dummy|ck-unsafe-element)/.test(element);
-const validateDataSet = (element) => !element.hasAttribute("data-ck-unsafe-element");
+const isHtmlString = str => /<([a-z]+)([^<]+)*(?:>(.*)<\/\1>|\s+\/>)/i.test(str);
 
 export default {
 	init,
