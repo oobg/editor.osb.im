@@ -52,8 +52,8 @@ paragraph.setCount = () => lastParagraphCount = model.getChildCount();
 paragraph.setWatch = () => editor.model.document.on("change:data", () => paragraphWatcher);
 paragraph.removeWatch = () => editor.model.document.off("change:data", () => paragraphWatcher);
 
-scroll.setWatch = () => document.getRoot()?.addEventListener("scroll", scrollEvent);
-scroll.removeWatch = () => document.getRoot()?.removeEventListener("scroll", scrollEvent);
+scroll.setWatch = () => document.getRoot()?.addEventListener("wheel", scrollEvent);
+scroll.removeWatch = () => document.getRoot()?.removeEventListener("wheel", scrollEvent);
 
 const convertTagName = (tagName) => {
 	if (tagName.startsWith('heading')) {
@@ -108,12 +108,9 @@ const onChange = (change) => {
 	}
 }
 
-const scrollEvent = (event) => {
+const scrollEvent = () => {
 	const isFocus = editor.ui.focusTracker.isFocused;
-	if (!isFocus) return;
-
-	event.target.blur();
-	scroll.removeWatch();
+	if (isFocus) document.activeElement.blur();
 }
 
 export default {
