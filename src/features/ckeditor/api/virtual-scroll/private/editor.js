@@ -12,15 +12,7 @@ const init = (instance) => editor = instance;
 
 const setData = (html) => editor.setData(html);
 const getData = () => editor.getData();
-const getDataAtIndex = (index) => {
-	const modelElement = $model.getChild(index);
-	if (!modelElement) return "";
-	let tagName = convertTagName(modelElement.name);
-	const attributes = convertAttributesToHtmlString(modelElement);
-	const viewFragment = editor.data.toView(modelElement);
-	let html = editor.data.processor.toData(viewFragment);
-	return createHtmlTag(tagName, attributes, html);
-}
+const getDataAtIndex = (index) => $document.getChild(index)?.innerHTML ?? "";
 
 /**
  * 1 change 내에서 여러 Element를 교체
@@ -36,6 +28,7 @@ const replaceAll = (data) => {
 }
 
 $document.getRoot = () => $document.findElement($model.getRoot());
+$document.getChild = (index) => $document.findElement($model.getChild(index));
 $document.findElement = (modelElement) => {
 	const viewElement = editor.editing.mapper.toViewElement(modelElement);
 	return editor.editing.view.domConverter.mapViewToDom(viewElement);
@@ -55,31 +48,29 @@ $paragraph.removeWatch = () => editor.model.document.off("change:data", () => pa
 $scroll.setWatch = () => $document.getRoot()?.addEventListener("wheel", scrollEvent);
 $scroll.removeWatch = () => $document.getRoot()?.removeEventListener("wheel", scrollEvent);
 
-const convertTagName = (tagName) => {
-	if (tagName.startsWith('heading')) {
-		tagName = `h${tagName.slice(-1)}`;
-	} else if (tagName === 'paragraph') {
-		tagName = 'p';
-	}
-	return tagName;
-}
-const convertAttributesToHtmlString = (modelElement) => {
-	const attributes = modelElement.getAttributes();
-	if (Object.keys(attributes).length === 0) return;
-
-	const keys = Object.keys(attributes);
-	return keys.map(key => `${key}="${attributes[key]}"`).join(" ");
-}
-const createHtmlTag = (tagName, attributes, html) => {
-	const attribute = attributes ? ` ${attributes}` : "";
-	return `<${tagName}${attribute}>${html}</${tagName}>`;
-}
-
 const replace = (writer, data) => {
-	for (const { index, oldEl, newEl } of data) {
-		writer.insert(newEl, $model.getRoot(), index);
-		writer.remove(oldEl);
+	for (const { index, element, type, height } of data) {
+		const parent = $model.getChild(index);
+		const children = parent.getChildren();
+		for (const child of children) {
+			writer.remove(child);
+		}
+		writer.insert(element, parent, "end");
+		editAttribute(index, type, height);
 	}
+}
+
+const editAttribute = (index, type, height) => {
+	requestAnimationFrame(() => {
+		const node = $document.getChild(index);
+		if (type === Symbol.for("chunk")) {
+			node.removeAttribute("data-content-dummy");
+			node.style.removeProperty("height");
+		} else {
+			node.setAttribute("data-content-dummy", "");
+			node.style.height = `${height}px`;
+		}
+	});
 }
 
 const paragraphWatcher = (eventInfo, batch) => {
