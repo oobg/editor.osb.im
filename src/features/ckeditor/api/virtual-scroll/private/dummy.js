@@ -3,7 +3,6 @@ import $editor from "./editor.js";
 
 const batchSize = 1000;
 const chunkSize = 50;
-const dummyHTML = `<p data-content-dummy style="height: ;"></p>`;
 let buffer = [];
 
 const init = () => {
@@ -19,10 +18,16 @@ const init = () => {
 
 /**
  * 더미 HTML을 반환합니다.
+ * @param {number} index 더미의 인덱스
  * @param {number | string} height 더미의 높이. 기본값은 100
  * @returns {string} 더미 HTML 문자열
  */
-const getHtml = (height = 24) => dummyHTML.replace("height: ;", `height: ${height}px;`);
+const getHtml = (index, height = 24) => {
+	const html = $chunk.getOuterData(index);
+	html.setAttribute("data-content-dummy", true);
+	html.style.height = `${height}px`;
+	return html.outerHTML;
+}
 
 /**
  * 버퍼에 HTML 청크 또는 더미 데이터를 추가
@@ -30,7 +35,14 @@ const getHtml = (height = 24) => dummyHTML.replace("height: ;", `height: ${heigh
  */
 const pushBuffer = (index) => {
 	const sizeCheck = index < chunkSize;
-	const html = sizeCheck ? $chunk.getData(index) : getHtml();
+	let html = "";
+	if (sizeCheck) {
+		const outer = $chunk.getOuterData(index);
+		outer.innerHTML = $chunk.getInnerData(index);
+		html = outer.outerHTML;
+	} else {
+		html = getHtml(index);
+	}
 	buffer.push(html);
 }
 
@@ -56,5 +68,4 @@ const removeFirstElement = () => {
 
 export default {
 	init,
-	getHtml,
 }
