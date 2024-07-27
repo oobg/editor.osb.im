@@ -1,68 +1,45 @@
-let outer = [];
-let inner = [];
+let data = [];
 
 const parser = new DOMParser();
 const parse = (html) => parser.parseFromString(html, "text/html");
 const getChildren = (html) => [...parse(html).body.children].filter(node => node.nodeType === 1);
-const validate = (element) => element.hasAttribute("data-content-dummy");
+const validate = (element) => element && element.hasAttribute("data-content-dummy");
 
 const init = (html) => {
-	outer = [];
-	inner = [];
+	data = [];
 	const elements = getChildren(html);
-	for (const parent of elements) {
-		outer.push(parent.cloneNode(false));
-		inner.push(parent.innerHTML ?? "");
+	for (const element of elements) {
+		data.push(element.outerHTML);
 	}
 };
 
-const getLength = () => Math.max(outer.length, inner.length);
-const getText = () => {
-	return outer.map((parent, i) => {
-		const out = parent.cloneNode(false);
-		out.innerHTML = inner[i];
-		return out.outerHTML;
-	}).join("");
-};
+const getLength = () => data.length;
+const getText = () => data.join("");
+const getData = (index = null) => index !== null ? data[index] : data;
+const setData = (index, value) => (data[index] = value);
 
-const getOuterData = (index) => outer[index].cloneNode(false);
-const getInnerData = (index) => inner[index];
-const setOuterData = (index, value) => (outer[index] = value.cloneNode(false));
-const setInnerData = (index, value) => (inner[index] = value);
-
-const insertData = (index, value = "") => {
-	outer.splice(index, 0, value);
-	inner.splice(index, 0, value);
-};
-
-const removeData = (index) => {
-	outer.splice(index, 1);
-	inner.splice(index, 1);
-};
-
+const insertData = (index, value = "") => data.splice(index, 0, value);
+const removeData = (index) => data.splice(index, 1);
 const updateData = (html) => {
 	const elements = getChildren(html);
-	const maxLength = Math.max(outer.length, elements.length);
+	let maxLength = Math.max(data.length, elements.length);
+	let i = 0;
 
-	for (let i = 0; i < maxLength; i++) {
-		if (validate(elements[i])) continue;
-
-		if (i >= outer.length) {
-			outer.push(elements[i].cloneNode(false));
-			inner.push(elements[i].innerHTML ?? "");
-		} else if (i >= elements.length) {
-			outer.splice(i, 1);
-			inner.splice(i, 1);
-			i--;
-		} else {
-			const newOuter = elements[i].cloneNode(false);
-			const newInner = elements[i].innerHTML ?? "";
-
-			if (outer[i].outerHTML !== newOuter.outerHTML) {
-				outer[i] = newOuter;
-				inner[i] = newInner;
-			}
+	while (i < maxLength) {
+		if (i < elements.length && validate(elements[i])) {
+			i++;
+			continue;
 		}
+
+		if (i >= data.length) {
+			data.push(elements[i].outerHTML);
+		} else if (i >= elements.length) {
+			data.splice(i, 1);
+			maxLength--;
+		} else if (data[i] !== elements[i].outerHTML) {
+			data[i] = elements[i].outerHTML;
+		}
+		i++;
 	}
 };
 
@@ -70,10 +47,8 @@ export default {
 	init,
 	getLength,
 	getText,
-	getOuterData,
-	getInnerData,
-	setOuterData,
-	setInnerData,
+	getData,
+	setData,
 	insertData,
 	removeData,
 	updateData,
