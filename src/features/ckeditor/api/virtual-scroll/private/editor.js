@@ -12,11 +12,10 @@ const init = (instance) => editor = instance;
 
 const setData = (html) => editor.setData(html);
 const getData = () => editor.getData();
-const getDataAtIndex = (index) => $document.getChild(index)?.innerHTML ?? "";
 
 /**
  * 1 change 내에서 여러 Element를 교체
- * @param {[{ index: number, oldEl: HTMLModElement, newEl: DocumentFragment }]} data
+ * @param {chunk[]|dummy[]} data
  *  - index: 삽입할 인덱스
  *  - oldEl: 삭제할 Element
  *  - newEl: 새로운 Element
@@ -49,28 +48,11 @@ $scroll.setWatch = () => $document.getRoot()?.addEventListener("wheel", scrollEv
 $scroll.removeWatch = () => $document.getRoot()?.removeEventListener("wheel", scrollEvent);
 
 const replace = (writer, data) => {
-	for (const { index, element, type, height } of data) {
-		const parent = $model.getChild(index);
-		const children = parent.getChildren();
-		for (const child of children) {
-			writer.remove(child);
-		}
-		writer.insert(element, parent, "end");
-		editAttribute(index, type, height);
+	const root = $model.getRoot();
+	for (const { index, oldEl, newEl } of data) {
+		writer.insert(newEl, root, index);
+		writer.remove(oldEl);
 	}
-}
-
-const editAttribute = (index, type, height) => {
-	requestAnimationFrame(() => {
-		const node = $document.getChild(index);
-		if (type === Symbol.for("chunk")) {
-			node.removeAttribute("data-content-dummy");
-			node.style.removeProperty("height");
-		} else {
-			node.setAttribute("data-content-dummy", "");
-			node.style.height = `${height}px`;
-		}
-	});
 }
 
 const paragraphWatcher = (eventInfo, batch) => {
@@ -108,7 +90,6 @@ export default {
 	init,
 	setData,
 	getData,
-	getDataAtIndex,
 	replaceAll,
 	document: $document,
 	model: $model,
