@@ -26,7 +26,7 @@ import Markdown from "@ckeditor/ckeditor5-markdown-gfm/src/markdown";
 import WordCount from "@ckeditor/ckeditor5-word-count/src/wordcount";
 import TextPartLanguage from "@ckeditor/ckeditor5-language/src/textpartlanguage";
 import TextTransFormation from "@ckeditor/ckeditor5-typing/src/typing";
-// import { DocumentList, DocumentListProperties } from "@ckeditor/ckeditor5-list";
+// import { DocumentList, DocumentListProperties } from "@ckeditor/ckeditor5-custom-list";
 import { Indent, IndentBlock } from "@ckeditor/ckeditor5-indent";
 import {
 	Table,
@@ -69,6 +69,7 @@ import {
 	ImageUpload,
 	AutoImage,
 } from "@ckeditor/ckeditor5-image";
+import CustomList from "@/features/ckeditor/model/custom-list/index.js";
 
 export default class ClassicEditor extends ClassicEditorBase {}
 
@@ -134,7 +135,7 @@ ClassicEditor.builtinPlugins = [
 	GeneralHtmlSupport,
 	HtmlComment,
 	SourceEditing,
-
+	CustomList,
 ];
 
 ClassicEditor.defaultConfig = {
