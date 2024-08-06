@@ -2,7 +2,7 @@
 import {ref} from "vue";
 import {useMeta} from "meta";
 import ClassicEditor from "@/features/ckeditor/model/build.js";
-import $plugin from "@/features/ckeditor/api/visibility-hidden/index.js"
+import $plugin from "@/features/ckeditor/model/visibility-hidden/index.js"
 import "@/features/ckeditor/ui/base.scss";
 
 useMeta({
