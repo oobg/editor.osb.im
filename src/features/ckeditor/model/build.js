@@ -1,42 +1,40 @@
-import ClassicEditorBase from "@ckeditor/ckeditor5-editor-classic/src/classiceditor";
-import Essentials from "@ckeditor/ckeditor5-essentials/src/essentials";
-import Paragraph from "@ckeditor/ckeditor5-paragraph/src/paragraph";
-import BlockQuote from "@ckeditor/ckeditor5-block-quote/src/blockquote";
-import MediaEmbed from "@ckeditor/ckeditor5-media-embed/src/mediaembed";
-import PasteFromOffice from "@ckeditor/ckeditor5-paste-from-office/src/pastefromoffice";
-import Heading from "@ckeditor/ckeditor5-heading/src/heading";
-import Title from "@ckeditor/ckeditor5-heading/src/heading";
-import Font from "@ckeditor/ckeditor5-font/src/font";
-import Alignment from "@ckeditor/ckeditor5-alignment/src/alignment";
-import TextTransformation from "@ckeditor/ckeditor5-typing/src/texttransformation";
-import PageBreak from "@ckeditor/ckeditor5-page-break/src/pagebreak";
-import {LinkImage} from "@ckeditor/ckeditor5-link";
-import Base64UploadAdapter from "@ckeditor/ckeditor5-upload/src/adapters/base64uploadadapter";
-import "@ckeditor/ckeditor5-build-classic/build/translations/ko";
-import SourceEditing from "@ckeditor/ckeditor5-source-editing/src/sourceediting";
-import AutoFormat from "@ckeditor/ckeditor5-autoformat/src/autoformat";
-import CodeBlock from "@ckeditor/ckeditor5-code-block/src/codeblock";
-import FindAndReplace from "@ckeditor/ckeditor5-find-and-replace/src/findandreplace";
-import Highlight from "@ckeditor/ckeditor5-highlight/src/highlight";
-import HorizontalLine from "@ckeditor/ckeditor5-horizontal-line/src/horizontalline";
-import SelectAll from "@ckeditor/ckeditor5-select-all/src/selectall";
-import RemoveFormat from "@ckeditor/ckeditor5-remove-format/src/removeformat";
-import HtmlEmbed from "@ckeditor/ckeditor5-html-embed/src/htmlembed";
-import Markdown from "@ckeditor/ckeditor5-markdown-gfm/src/markdown";
-import WordCount from "@ckeditor/ckeditor5-word-count/src/wordcount";
-import TextPartLanguage from "@ckeditor/ckeditor5-language/src/textpartlanguage";
-import TextTransFormation from "@ckeditor/ckeditor5-typing/src/typing";
-// import { DocumentList, DocumentListProperties } from "@ckeditor/ckeditor5-custom-list";
-import { Indent, IndentBlock } from "@ckeditor/ckeditor5-indent";
 import {
+	ClassicEditor as ClassicEditorBase,
+	Essentials,
+	Paragraph,
+	BlockQuote,
+	MediaEmbed,
+	PasteFromOffice,
+	Heading,
+	Title,
+	Font,
+	Autoformat,
+	Alignment,
+	TextTransformation,
+	PageBreak,
+	LinkImage,
+	Base64UploadAdapter,
+	SourceEditing,
+	CodeBlock,
+	FindAndReplace,
+	Highlight,
+	HorizontalLine,
+	SelectAll,
+	RemoveFormat,
+	HtmlEmbed,
+	Markdown,
+	WordCount,
+	TextPartLanguage,
+	Indent,
+	IndentBlock,
+	// table
 	Table,
 	TableToolbar,
 	TableCaption,
 	TableCellProperties,
 	TableProperties,
 	TableColumnResize,
-} from "@ckeditor/ckeditor5-table";
-import {
+	// special-characters
 	SpecialCharacters,
 	SpecialCharactersArrows,
 	SpecialCharactersCurrency,
@@ -44,13 +42,11 @@ import {
 	SpecialCharactersLatin,
 	SpecialCharactersMathematical,
 	SpecialCharactersText,
-} from "@ckeditor/ckeditor5-special-characters";
-import {
+	// html-support
 	FullPage,
 	HtmlComment,
 	GeneralHtmlSupport,
-} from "@ckeditor/ckeditor5-html-support";
-import {
+	// basic-styles
 	Bold,
 	Code,
 	Italic,
@@ -58,8 +54,7 @@ import {
 	Subscript,
 	Superscript,
 	Underline,
-} from "@ckeditor/ckeditor5-basic-styles";
-import {
+	// image
 	Image,
 	ImageInsert,
 	ImageCaption,
@@ -68,12 +63,51 @@ import {
 	ImageResize,
 	ImageUpload,
 	AutoImage,
-} from "@ckeditor/ckeditor5-image";
+	List,
+	ListProperties,
+} from "ckeditor5"
 import CustomList from "@/features/ckeditor/model/custom-list/index.js";
+
+import "ckeditor5/ckeditor5.css";
 
 export default class ClassicEditor extends ClassicEditorBase {}
 
 ClassicEditor.builtinPlugins = [
+	Essentials,
+	Paragraph,
+	BlockQuote,
+	MediaEmbed,
+	PasteFromOffice,
+	Heading,
+	Title,
+	Font,
+	Autoformat,
+	Alignment,
+	TextTransformation,
+	PageBreak,
+	LinkImage,
+	Base64UploadAdapter,
+	SourceEditing,
+	CodeBlock,
+	FindAndReplace,
+	Highlight,
+	HorizontalLine,
+	SelectAll,
+	RemoveFormat,
+	HtmlEmbed,
+	Markdown,
+	WordCount,
+	TextPartLanguage,
+	Indent,
+	IndentBlock,
+	// table
+	Table,
+	TableToolbar,
+	TableCaption,
+	TableCellProperties,
+	TableProperties,
+	TableColumnResize,
+	// special-characters
 	SpecialCharacters,
 	SpecialCharactersArrows,
 	SpecialCharactersCurrency,
@@ -81,60 +115,30 @@ ClassicEditor.builtinPlugins = [
 	SpecialCharactersLatin,
 	SpecialCharactersMathematical,
 	SpecialCharactersText,
-	FindAndReplace,
-	AutoFormat,
-	SelectAll,
-	// DocumentList,
-	// DocumentListProperties,
-	TextPartLanguage,
-	TextTransFormation,
-	WordCount,
-	AutoImage,
-	Image,
-	ImageInsert,
-	ImageCaption,
-	ImageResize,
-	CodeBlock,
-	Essentials,
-	Paragraph,
-	Highlight,
-	HorizontalLine,
+	// html-support
+	FullPage,
+	HtmlComment,
+	GeneralHtmlSupport,
+	// basic-styles
 	Bold,
 	Code,
+	Italic,
 	Strikethrough,
 	Subscript,
 	Superscript,
-	RemoveFormat,
-	Italic,
 	Underline,
-	BlockQuote,
-	MediaEmbed,
-	HtmlEmbed,
-	PasteFromOffice,
-	Heading,
-	Font,
+	// image
+	Image,
+	ImageInsert,
+	ImageCaption,
 	ImageStyle,
 	ImageToolbar,
+	ImageResize,
 	ImageUpload,
-	Markdown,
-	Alignment,
-	Table,
-	TableToolbar,
-	TableCaption,
-	TableCellProperties,
-	TableProperties,
-	TableColumnResize,
-	TextTransformation,
-	Indent,
-	IndentBlock,
-	PageBreak,
-	Base64UploadAdapter,
-	LinkImage,
-	Title,
-	FullPage,
-	GeneralHtmlSupport,
-	HtmlComment,
-	SourceEditing,
+	AutoImage,
+	// list
+	List,
+	ListProperties,
 	CustomList,
 ];
 
@@ -158,6 +162,8 @@ ClassicEditor.defaultConfig = {
 			"fontBackgroundColor",
 			"|",
 			"alignment",
+			"bulletedList",
+			"numberedList",
 			"outdent",
 			"indent",
 			"blockQuote",
@@ -244,31 +250,16 @@ ClassicEditor.defaultConfig = {
 			35,
 		],
 	},
-	language: 'ko',
 	extraAllowedContent: '*[*]{*}',
 	fontFamily: {
-		options: [
-			"default",
-			"Arial",
-			"Calibri",
-			"Consolas",
-			"Courier",
-			"Sans-serif",
-			"Verdana",
-			"굴림",
-			"궁서",
-			"돋움",
-			"맑은고딕",
-			"바탕",
-		],
 		supportAllValues: true,
 	},
 	list: {
 		properties: {
 			styles: true,
 			startIndex: true,
-			reversed: true,
-		},
+			reversed: true
+		}
 	},
 	alignment: {
 		options: ["justify", "left", "center", "right"],

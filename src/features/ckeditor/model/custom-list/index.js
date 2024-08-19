@@ -1,4 +1,4 @@
-import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
+import { Plugin } from "ckeditor5";
 import {
 	afterExecuteBullet,
 	afterExecuteNumberedList,
@@ -65,7 +65,6 @@ class CustomList extends Plugin {
 		// 편집 요소로 리스트를 추가 시, 커스텀 모델 요소로 변경
 		command.get("bulletedList").on("afterExecute", afterExecuteBullet);
 		command.get("numberedList").on("afterExecute", afterExecuteNumberedList);
-
 	}
 }
 
