@@ -16,7 +16,6 @@ class CustomList extends Plugin {
 
 		schema.register("list", {
 			allowIn: ["$root", "$block", "$blockObject", "$container"], // 블록 내에서도 리스트를 사용할 수 있게 설정
-			isObject: true,
 			allowAttributes: allowAttributes,
 		});
 
