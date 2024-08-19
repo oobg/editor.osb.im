@@ -56,18 +56,29 @@ const upcastList = (viewElement, { writer }) => {
 	return listElement;
 };
 
+// 리스트 요소로 자동 변환되는 키워드
+const autoFormattingKeywords = [ "- ", "* ", "1. ", "1) " ];
+
 // 편집 요소로 리스트를 추가 시, 커스텀 모델 요소로 변경
 const afterExecuteIndent = (type, eventInfo, changedBlocks) => {
 	const editor = eventInfo.source.editor;
 	editor.model.change(writer => {
 		const listParent = writer.createElement("list", { listType: type });
-		const listItem = writer.createElement("listItem");
-		const paragraph = writer.createElement("paragraph");
-		writer.insert(listItem, listParent);
-		writer.insert(listParent, changedBlocks[0], "after");
-		writer.insert(paragraph, listParent, "after");
-		writer.setSelection(listItem, 'on');
-		writer.remove(changedBlocks[0]);
+
+		changedBlocks.forEach(block => {
+			const listItem = writer.createElement("listItem");
+
+			block.getChildren()
+				.filter(child => child.is("text") && !autoFormattingKeywords.includes(child.data))
+				.forEach(child => writer.insert(writer.createText(child.data), listItem, 'end'));
+
+			writer.insert(listItem, listParent);
+			writer.insert(listParent, block, "after");
+			writer.remove(block);
+		});
+
+		writer.insert(writer.createElement("paragraph"), listParent, "after");
+		writer.setSelection(listParent, "in", { backward: true });
 	});
 };
 
