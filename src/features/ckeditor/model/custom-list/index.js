@@ -10,9 +10,13 @@ import {
 
 class CustomList extends Plugin {
 	init() {
-		const conversion = this.editor.conversion;
+		this._defineSchema();
+		this._defineConversion();
+		this._defineCommands();
+	}
+
+	_defineSchema() {
 		const schema = this.editor.model.schema;
-		const command = this.editor.commands;
 
 		schema.register("list", {
 			allowIn: ["$root", "$block", "$blockObject", "$container"], // 블록 내에서도 리스트를 사용할 수 있게 설정
@@ -24,6 +28,10 @@ class CustomList extends Plugin {
 			allowContentOf: "$block", // 리스트 아이템 내에서 블록 요소를 허용
 			allowAttributes: allowAttributes,
 		});
+	}
+
+	_defineConversion() {
+		const conversion = this.editor.conversion;
 
 		// Upcast converter (View -> Model) for listItem
 		conversion.for("dataDowncast").elementToElement({
@@ -61,6 +69,10 @@ class CustomList extends Plugin {
 			model: upcastList,
 			converterPriority: "high",
 		});
+	}
+
+	_defineCommands() {
+		const command = this.editor.commands;
 
 		// 편집 요소로 리스트를 추가 시, 커스텀 모델 요소로 변경
 		command.get("bulletedList").on("afterExecute", afterExecuteBullet);
