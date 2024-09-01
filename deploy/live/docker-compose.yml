@@ -5,12 +5,11 @@ services:
     container_name: editor.osb.im
     image: editor.osb.im:1.${BUILD_NUMBER}
     restart: always
-    ports:
-      - 9030:80
+    expose:
+      - 80
     networks:
       - npm
 
 networks:
   npm:
-    external:
-      name: npm
+    external: true
