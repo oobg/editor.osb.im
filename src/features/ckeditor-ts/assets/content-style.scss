@@ -1,0 +1,17 @@
+.ck.ck-reset.ck-editor.ck-rounded-corners {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  overflow: auto;
+  flex-direction: column;
+
+  .ck-editor__main {
+    flex-grow: 1;
+    display: flex;
+    overflow: auto;
+
+    .ck-editor__editable_inline {
+      flex-grow: 1;
+    }
+  }
+}
