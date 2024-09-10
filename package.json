@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "start": "vite preview"
+    "start": "vite preview --port 3000"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-vue": "^7.0.0",
