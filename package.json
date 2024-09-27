@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "start": "serve -s dist --port 3000 --host"
+    "preview": "vite preview --port 3000 --host",
+    "start": "serve -s dist -l 3000"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-vue": "^7.0.0",
