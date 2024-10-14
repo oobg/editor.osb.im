@@ -1,5 +1,5 @@
 const allowAttributes = [
-	"data-ke-custom-list-type",
+	"data-ke-list-type",
 	"blockIndent",
 	"listType",
 	"listItemId",
@@ -10,7 +10,7 @@ const allowAttributes = [
 	"htmlLiAttributes",
 	"htmlDlAttributes",
 	"htmlDtAttributes",
-	"htmlDdAttributes"
+	"htmlDdAttributes",
 ];
 
 const listItemType = (modelElement) => {
@@ -26,34 +26,59 @@ const listItemType = (modelElement) => {
 	}
 }
 
+// Downcast converter (Model -> View) for list
+const downcastList = (modelElement, { writer }) => {
+	const listType = modelElement.getAttribute("listType");
+	const listStartIndex = modelElement.getAttribute("startIndex");
+	const listStyle = modelElement.getAttribute("style");
+	const listConfig = {
+		...(listStartIndex && { start: listStartIndex }),
+		...(listStyle && { style: listStyle })
+	};
+
+	return writer.createContainerElement(listType, listConfig);
+};
+
 // Downcast converter (Model -> View) for listItem
 const downcastListItem = (modelElement, { writer }) => {
 	const listType = listItemType(modelElement);
 	return writer.createContainerElement(listType);
 };
 
-// Downcast converter (Model -> View) for custom-list
-const downcastList = (modelElement, { writer }) => {
-	const listType = modelElement.getAttribute("listType");
-	return writer.createContainerElement(listType);
-};
-
 // Upcast converter (View -> Model)
 const upcastList = (viewElement, { writer }) => {
-	const listType = viewElement.name;
-	const listElement = writer.createElement("list", { listType: listType });
+	const listConfig = {
+		listType: viewElement.name, // 'ul' 또는 'ol'
+		startIndex: viewElement.getAttribute("start"),
+		style: viewElement.getAttribute("style"),
+	};
+	const listParent = writer.createElement("customList", listConfig);
 
+	// 자식 요소를 순서대로 처리하여 리스트 항목으로 변환
 	for (const child of viewElement.getChildren()) {
-		if (child.is("element", "li")) {
-			const listItem = writer.createElement("listItem");
-			const grandChild = child.getChild(0);
-			const textNode = grandChild?.is("text") ? grandChild : grandChild?.getChild(0);
-			const data = textNode ? textNode?.data : "";
-			writer.insert(writer.createText(data), listItem);
-			writer.append(listItem, listElement);
+		if (!child.is("element", "li")) continue;
+
+		const listItem = writer.createElement("customListItem");
+
+		// 각 자식 요소의 텍스트 노드를 순서대로 삽입
+		for (const grandChild of child.getChildren()) {
+			if (grandChild.is("text")) {
+				writer.insert(writer.createText(grandChild.data), listItem, 'end');
+			} else if (grandChild.is("element")) {
+				const textNode = grandChild.getChild(0);
+				if (textNode && textNode.is("text")) {
+					writer.insert(writer.createText(textNode.data), listItem, 'end');
+				}
+			}
 		}
+
+		writer.append(listItem, listParent);
 	}
-	return listElement;
+
+	writer.setAttribute("listIndent", null, listParent);
+	writer.setAttribute("listStyle", "default", listParent);
+
+	return listParent;
 };
 
 // 리스트 요소로 자동 변환되는 키워드
@@ -63,16 +88,18 @@ const autoFormattingKeywords = [ "- ", "* ", "1. ", "1) " ];
 const afterExecuteIndent = (type, eventInfo, changedBlocks) => {
 	const editor = eventInfo.source.editor;
 	editor.model.change(writer => {
-		const listParent = writer.createElement("list", { listType: type });
+		const listParent = writer.createElement("customList", { listType: type });
 
 		changedBlocks.forEach(block => {
-			const listItem = writer.createElement("listItem");
+			const customListItem = writer.createElement("customListItem");
 
-			block.getChildren()
+			// 자식 요소 순서대로 처리
+			const childrenArray = Array.from(block.getChildren()); // 배열로 변환하여 순서 보장
+			childrenArray
 				.filter(child => child.is("text") && !autoFormattingKeywords.includes(child.data))
-				.forEach(child => writer.insert(writer.createText(child.data), listItem, 'end'));
+				.forEach(child => writer.insert(writer.createText(child.data), customListItem, 'end'));
 
-			writer.insert(listItem, listParent);
+			writer.insert(customListItem, listParent, "end");
 			writer.insert(listParent, block, "after");
 			writer.remove(block);
 		});
